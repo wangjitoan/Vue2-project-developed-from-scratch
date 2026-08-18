@@ -1,0 +1,20 @@
+{
+    // 关闭输入自动弹出提示框
+    "editor.quickSuggestions": {
+        "other": false,
+        "comments": false,
+        "strings": false
+    },
+    // 输入 . ( 等符号不触发提示
+    "editor.suggestOnTriggerCharacters": false,
+    // 关闭行内AI幽灵文本
+    "editor.inlineSuggest.enabled": false,
+    // 关闭函数参数提示
+    "editor.parameterHints.enabled": false,
+    // 回车不要自动接受补全
+    "editor.acceptSuggestionOnEnter": "off",
+    // 关闭基于文件内单词的提示
+    "editor.wordBasedSuggestions": "off",
+    // 关闭悬浮鼠标弹出提示
+    "editor.hover.enabled": "false"
+}

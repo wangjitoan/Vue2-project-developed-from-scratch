@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app"></div>
+  <!-- 引入 vue.js，将会绑定到 window-->
+  <script src="./vue.js"></script>
+  <script>
+    // debugger;
+    let vm = new Vue({
+      el: '#app',
+      data() {
+        return { 
+          message: 'Hello Vue',     // 值
+          obj: { key: "val" },      // 嵌套对象
+          arr:[[2323,445],{label:1212,value:3434},3]}              // 数组
+      },
+      template:'<div id="app" b=23 ><p>helloWorld <span></span></p></div>'
+      // render:function(){consol.log(333)}
+    });
+
+    // vm.arr.push({a:1,b:3},{c:34})
+    // vm.arr.push(vm.obj)
+    // vm.arr.push(4) // 操作数组
+    // console.log(vm._data)
+  </script>
+</body>
+</html>

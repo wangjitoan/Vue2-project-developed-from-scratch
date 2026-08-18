@@ -1,0 +1,31 @@
+{
+  "name": "Vue2-project-developed-from-scratch",
+  "version": "1.0.0",
+  "description": "自写VUE2码源",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "rollup -c -w"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wangjitoan/Vue2-project-developed-from-scratch.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wangjitoan/Vue2-project-developed-from-scratch/issues"
+  },
+  "homepage": "https://github.com/wangjitoan/Vue2-project-developed-from-scratch#readme",
+  "dependencies": {
+    "@rollup/plugin-node-resolve": "^16.0.3"
+  },
+  "devDependencies": {
+    "@babel/core": "7.28.0",
+    "@babel/preset-env": "7.28.0",
+    "@rollup/plugin-babel": "6.0.4",
+    "rollup": "3.29.5"
+  }
+}
