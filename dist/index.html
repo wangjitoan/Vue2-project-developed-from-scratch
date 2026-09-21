@@ -18,9 +18,11 @@
         return { 
           message: 'Hello Vue',     // 值
           obj: { key: "val" },      // 嵌套对象
-          arr:[[2323,445],{label:1212,value:3434},3]}              // 数组
+          arr:[[2323,445],{label:1212,value:3434},3],
+            name:111,     
+      }     // 数组
       },
-      template:'<div id="app" b=23 ><p>helloWorld <span></span></p></div>'
+      template:'<div id="app" b=23 style="color:red;width:90px;">aaa{{name}}bbb</div>'
       // render:function(){consol.log(333)}
     });
 
