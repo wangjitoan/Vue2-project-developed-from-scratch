@@ -229,7 +229,7 @@
   function generate(ast) {
     console.log("parserHTML-ast : ", ast);
     let children = genChildren(ast);
-    let code = `_c( ${ast.tag},  {attrs:${ast.attrs.length ? genProps(ast.attrs) : undefined}}, ${children ? children : ''}   )`;
+    let code = `_c( "${ast.tag}",  {attrs:${ast.attrs.length ? genProps(ast.attrs) : undefined}}, ${children ? children : ''}   )`;
     return code;
   }
   /**
@@ -300,6 +300,19 @@
     console.log('ast', code);
     const render = new Function(`with(this){return  ${code} }`);
     console.log(render.toString());
+    return render;
+  }
+
+  // 生命周期模块
+  /**
+   * 挂载组件函数
+   * 该函数负责将组件实例挂载到DOM上，是组件生命周期的重要环节
+   * @param {Object} vm - Vue组件实例对象，包含组件的相关数据和状态
+   */
+  function mountComponent(vm) {
+    // 调用组件的render方法生成虚拟DOM
+    // 这是组件挂载过程中的关键步骤，会根据组件的数据生成对应的虚拟DOM树
+    vm._render();
   }
 
   function initMixin(vue) {
@@ -331,6 +344,50 @@
       } else {
         console.log('已经渲染过了');
       }
+      mountComponent(vm);
+    };
+  }
+
+  function createElement(vm, tag, data = {}, ...children) {
+    return vnode(vm, tag, data, ...children, data.key, undefined);
+  }
+  function createText(vm, text) {
+    return vnode(vm, undefined, undefined, undefined, undefined, text);
+  }
+  function vnode(vm, tag, data, children, key, text) {
+    return {
+      vm,
+      tag,
+      data,
+      children,
+      key,
+      text
+    };
+  }
+
+  // 渲染
+  function renderMixin(vue) {
+    vue.prototype._s = function (val) {
+      if (isObject(val)) {
+        return JSON.stringify(val);
+      } else return val;
+    };
+    // 虚拟文本节点
+    vue.prototype._v = function (val) {
+      return createText(this, val);
+    };
+    // 虚拟元素节点
+    vue.prototype._c = function (tag, attrs, ...children) {
+      return createElement(this, tag, attrs, children);
+    };
+    vue.prototype._render = function () {
+      const vm = this;
+      const {
+        render
+      } = vm.$options;
+      let node = render.call(vm);
+      console.log(node);
+      return node;
     };
   }
 
@@ -341,6 +398,7 @@
   }
   // 挂载上方法
   initMixin(Vue);
+  renderMixin(Vue);
 
   return Vue;
 

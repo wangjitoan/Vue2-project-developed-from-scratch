@@ -5,4 +5,5 @@ export function compileToFunction(template) {
     console.log('ast', code);
     const render = new Function(`with(this){return  ${code} }`)
     console.log(render.toString())
+    return render
 }

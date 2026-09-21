@@ -119,7 +119,7 @@ export function parserHTML(html) {
 export function generate(ast) {
   console.log("parserHTML-ast : ", ast);
   let children = genChildren(ast); 
-  let code = `_c( ${ast.tag},  {attrs:${ast.attrs.length ? genProps(ast.attrs) : undefined}}, ${children ? children : ''}   )`;
+  let code = `_c( "${ast.tag}",  {attrs:${ast.attrs.length ? genProps(ast.attrs) : undefined}}, ${children ? children : ''}   )`;
   return code
 }
 /**

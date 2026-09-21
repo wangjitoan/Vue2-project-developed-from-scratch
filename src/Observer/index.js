@@ -31,7 +31,7 @@ class Observer {
 function defineReactive(data, key, value) { 
     observer(value)
     Object.defineProperty(data, key, {
-        get() { 
+        get() {  
             return value
         },
         set(newVal) {

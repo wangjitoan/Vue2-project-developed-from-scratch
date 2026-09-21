@@ -7,7 +7,10 @@
   <title>Document</title>
 </head>
 <body>
-  <div id="app"></div>
+  <div id="app">
+    <!-- <span>{{vm.data().name}}</span>
+    <button onclick="addName">+1</button>   -->
+  </div>
   <!-- 引入 vue.js，将会绑定到 window-->
   <script src="./vue.js"></script>
   <script>
@@ -22,7 +25,10 @@
             name:111,     
       }     // 数组
       },
-      template:'<div id="app" b=23 style="color:red;width:90px;">aaa{{name}}bbb</div>'
+      template:'<div id="app" b=23 style="color:red;width:90px;">aaa{{name}}bbb<span></span></div>',
+      methods:{addName(){
+        name+=1
+      }}
       // render:function(){consol.log(333)}
     });
 
