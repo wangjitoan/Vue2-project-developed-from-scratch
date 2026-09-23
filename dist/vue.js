@@ -36,6 +36,18 @@
     };
   });
 
+  let id = 0;
+  class Dep {
+    constructor() {
+      this.id = id++;
+      this.subs = [];
+    }
+    depend() {
+      this.subs.push(Dep.target);
+    }
+  }
+  Dep.target = null;
+
   class Observer {
     constructor(data) {
       Object.defineProperty(data, '__ob__', {
@@ -64,8 +76,12 @@
   }
   function defineReactive(data, key, value) {
     observer(value);
+    let dep = new Dep();
     Object.defineProperty(data, key, {
       get() {
+        if (Dep.target) {
+          dep.depend();
+        }
         return value;
       },
       set(newVal) {
@@ -348,6 +364,21 @@
     }
   }
 
+  class Watcher {
+    constructor(vm, fn, cb, options) {
+      this.vm = vm;
+      this.fn = fn;
+      this.cb = cb;
+      this.getter = fn;
+      this.get();
+    }
+    get() {
+      Dep.target = this.vm;
+      this.getter();
+      Dep.target = null;
+    }
+  }
+
   // 生命周期模块
   /**
    * 挂载组件函数
@@ -357,7 +388,12 @@
   function mountComponent(vm) {
     // 调用组件的render方法生成虚拟DOM
     // 这是组件挂载过程中的关键步骤，会根据组件的数据生成对应的虚拟DOM树
-    vm._update(vm._render());
+    let updateComponent = () => {
+      vm._update(vm._render());
+    };
+    new Watcher(vm, updateComponent, () => {
+      console.log('mountComponent');
+    }, true);
   }
   function lifecycleMixin(Vue) {
     // 更新节点函数挂载

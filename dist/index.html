@@ -30,8 +30,10 @@
         name+=1
       }}
       // render:function(){consol.log(333)}
-    });
-
+    }); 
+    vm.name='hello kitty' 
+    
+    vm._update(vm._render())
     // vm.arr.push({a:1,b:3},{c:34})
     // vm.arr.push(vm.obj)
     // vm.arr.push(4) // 操作数组
