@@ -270,9 +270,11 @@
     } else if (el.type === 2) {
       // 文本类型
       const text = el.text;
-      // debugger
       if (!defaultTagRE.test(text)) {
-        return `_v${text}`;
+        // 思索：既然是字符串化，为什么要使用JSON.stringify 而不使用String,区别在源码转义
+        // 静态文本要包装成合法 JS 字符串字面量
+        // String(val) 是类型转换：把任意值转成内存里的 JS 字符串，不是生成源码字面量。
+        return `_v(${JSON.stringify(text)})`;
       } else {
         let token = [];
         let index = defaultTagRE.lastIndex = 0;
@@ -287,7 +289,7 @@
         if (index < text.length) {
           token.push(`${JSON.stringify(text.slice(index, text.length))}`);
         }
-        return `[_v(${token.join('+')})]`;
+        return `_v(${token.join('+')})`;
       }
     } else {
       return false;
@@ -303,6 +305,49 @@
     return render;
   }
 
+  function patch(el, vnode) {
+    // 创建
+    const dom = createElement$1(vnode);
+    console.log('createElement', vnode);
+    console.log(el.parentNode, "el");
+    const parentNode = el.parentNode;
+    const last = el.nextElementSibling;
+    parentNode.insertBefore(dom, last);
+    parentNode.removeChild(el);
+    return dom;
+  }
+  function createElement$1(vnode) {
+    const {
+      vm,
+      tag,
+      data,
+      children,
+      key,
+      text
+    } = vnode;
+    if (typeof tag === 'string') {
+      // 将真实节点和虚拟节点做映射
+      vnode.el = document.createElement(tag);
+      // 挂载属性
+      updateProperties(vnode.el, data?.attrs);
+      if (children.length) {
+        children.forEach(item => vnode.el.appendChild(createElement$1(item)));
+      }
+    } else {
+      vnode.el = document.createTextNode(text);
+    }
+    return vnode.el;
+  }
+  function updateProperties(el, props = {}) {
+    for (let key in props) {
+      let value = props[key];
+      if (key === 'style') {
+        value = JSON.stringify(props[key]);
+      }
+      el.setAttribute(key, value);
+    }
+  }
+
   // 生命周期模块
   /**
    * 挂载组件函数
@@ -312,7 +357,16 @@
   function mountComponent(vm) {
     // 调用组件的render方法生成虚拟DOM
     // 这是组件挂载过程中的关键步骤，会根据组件的数据生成对应的虚拟DOM树
-    vm._render();
+    vm._update(vm._render());
+  }
+  function lifecycleMixin(Vue) {
+    // 更新节点函数挂载
+    Vue.prototype._update = function (vnode) {
+      const vm = this;
+      // console.log(vnode)
+      vm.$el = patch(vm.$el, vnode);
+      console.log('依据vdom生成的真实dom', vm.$el);
+    };
   }
 
   function initMixin(vue) {
@@ -386,7 +440,7 @@
         render
       } = vm.$options;
       let node = render.call(vm);
-      console.log(node);
+      console.log(node, '_render执行');
       return node;
     };
   }
@@ -399,6 +453,7 @@
   // 挂载上方法
   initMixin(Vue);
   renderMixin(Vue);
+  lifecycleMixin(Vue);
 
   return Vue;
 

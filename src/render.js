@@ -11,7 +11,6 @@ export function renderMixin(vue) {
     }
     // 虚拟文本节点
     vue.prototype._v = function (val) {
-      
        return createText(this,val);
     };
     // 虚拟元素节点
@@ -23,7 +22,7 @@ export function renderMixin(vue) {
          const vm=this
         const { render } = vm.$options
         let node =render.call(vm)
-        console.log(node) 
+        console.log(node,'_render执行') 
         return node
     }
  }

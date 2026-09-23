@@ -160,10 +160,12 @@ function gen(el) {
     return generate(el)
   } else if (el.type === 2) {
     // 文本类型
-    const text = el.text 
-    // debugger
+    const text = el.text  
     if (!defaultTagRE.test(text)) {
-        return `_v${text}`
+      // 思索：既然是字符串化，为什么要使用JSON.stringify 而不使用String,区别在源码转义
+      // 静态文本要包装成合法 JS 字符串字面量
+      // String(val) 是类型转换：把任意值转成内存里的 JS 字符串，不是生成源码字面量。
+      return `_v(${JSON.stringify(text)})`;
     } else { 
       let token=[]
       let index = defaultTagRE.lastIndex = 0
@@ -178,7 +180,7 @@ function gen(el) {
       if (index < text.length) { 
         token.push( `${JSON.stringify(text.slice(index, text.length))}`)
       }
-      return  `[_v(${token.join('+')})]`
+      return  `_v(${token.join('+')})`
     }
    
     return el.text
