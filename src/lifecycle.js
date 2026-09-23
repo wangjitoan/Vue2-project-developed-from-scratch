@@ -22,5 +22,6 @@ export function lifecycleMixin(Vue) {
         // console.log(vnode)
         vm.$el = patch(vm.$el, vnode)
         console.log('依据vdom生成的真实dom',vm.$el)
-     }
+    }
+
 }

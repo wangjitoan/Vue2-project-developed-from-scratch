@@ -13,6 +13,22 @@
   function isArray(val) {
     return Array.isArray(val);
   }
+  function nextTick(fn) {
+    callBacks.push(fn);
+    if (!waiting) {
+      Promise.resolve().then(flushsCallbacks);
+      waiting = true;
+    }
+  }
+  // 回调函数数组统一排队
+  let callBacks = [];
+  let waiting = false;
+  // 执行
+  function flushsCallbacks() {
+    callBacks.forEach(item => item());
+    callBacks = [];
+    waiting = false;
+  }
 
   let oldArrayPrototype = Array.prototype;
   let newArrayMethods = Object.create(oldArrayPrototype);
@@ -99,7 +115,7 @@
       set(newVal) {
         if (newVal === value) return;
         observer(newVal);
-        // console.log(`set响应式,newVal为`,JSON.stringify(newVal) ,`value为${value}`)
+        console.log(`set响应式,newVal为`, JSON.stringify(newVal), 'key为', key);
         value = newVal;
         dep.notify();
       }
@@ -377,6 +393,27 @@
     }
   }
 
+  let queue = [];
+  let has = {};
+  let pending = false;
+  function queueWatcher(watcher) {
+    let id = watcher.id;
+    if (!has[id]) {
+      has[id] = true;
+      queue.push(watcher);
+      if (!pending) {
+        nextTick(flushschedulerQueue);
+        pending = true;
+      }
+    }
+  }
+  function flushschedulerQueue() {
+    queue.forEach(watcher => watcher.run());
+    queue = [];
+    pending = false;
+    has = {};
+  }
+
   let id = 0;
   class Watcher {
     constructor(vm, fn, cb, options) {
@@ -405,6 +442,11 @@
       }
     }
     update() {
+      console.log("watcher-update", "查重并缓存需要更新的 watcher");
+      queueWatcher(this);
+    }
+    run() {
+      console.log("watcher-run", "真正执行视图更新");
       this.get();
     }
   }
@@ -466,6 +508,7 @@
       }
       mountComponent(vm);
     };
+    vue.prototype.$nextTick = nextTick;
   }
 
   function createElement(vm, tag, data = {}, ...children) {

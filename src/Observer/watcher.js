@@ -1,4 +1,5 @@
 import Dep from './Dep'
+import { queueWatcher} from './schedule'
 let id=0
 class Watcher { 
     constructor(vm, fn, cb, options) {
@@ -26,7 +27,12 @@ class Watcher {
             dept.addSub(this)
         }
     }
-    update() { 
+    update() {
+         console.log("watcher-update", "查重并缓存需要更新的 watcher");
+        queueWatcher(this)
+    }
+    run() { 
+         console.log("watcher-run", "真正执行视图更新");
         this.get()
     }
 }

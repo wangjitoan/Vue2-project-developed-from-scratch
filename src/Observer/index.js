@@ -42,7 +42,7 @@ function defineReactive(data, key, value) {
         set(newVal) {
             if (newVal === value) return
             observer(newVal)
-            // console.log(`set响应式,newVal为`,JSON.stringify(newVal) ,`value为${value}`)
+            console.log(`set响应式,newVal为`,JSON.stringify(newVal),'key为',key  )
             value = newVal
             dep.notify()
          }

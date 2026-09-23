@@ -1,6 +1,7 @@
 import { initState } from './state'
 import { compileToFunction } from './compiler'
-import { mountComponent} from './lifecycle'
+import { mountComponent } from './lifecycle'
+import { nextTick } from "./utils";
 export function initMixin(vue) {
    
     // 初始化vue的init,作用在于数据初始化、节点挂载
@@ -36,5 +37,5 @@ export function initMixin(vue) {
         mountComponent(vm)
          
     }
-    
+        vue.prototype.$nextTick = nextTick;
 }
