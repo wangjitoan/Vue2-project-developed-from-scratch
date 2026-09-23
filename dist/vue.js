@@ -36,14 +36,26 @@
     };
   });
 
-  let id = 0;
+  let id$1 = 0;
   class Dep {
     constructor() {
-      this.id = id++;
+      this.id = id$1++;
       this.subs = [];
     }
+    // dept与watcher双向记住入口
     depend() {
-      this.subs.push(Dep.target);
+      Dep.target.addDept(this);
+    }
+    addSub(watcher) {
+      this.subs.push(watcher);
+    }
+    /**
+     * 通知方法，用于通知所有订阅者（观察者）更新
+     * 该方法会遍历所有订阅者（subs数组）并调用它们的update方法
+     */
+    notify() {
+      // 遍历订阅者数组，对每个订阅者调用update方法
+      this.subs.forEach(watcher => watcher.update());
     }
   }
   Dep.target = null;
@@ -89,6 +101,7 @@
         observer(newVal);
         // console.log(`set响应式,newVal为`,JSON.stringify(newVal) ,`value为${value}`)
         value = newVal;
+        dep.notify();
       }
     });
   }
@@ -364,18 +377,35 @@
     }
   }
 
+  let id = 0;
   class Watcher {
     constructor(vm, fn, cb, options) {
       this.vm = vm;
       this.fn = fn;
       this.cb = cb;
       this.getter = fn;
+      this.id = id++;
+      this.deps = []; // 用于当前 watcher 保存 dep 实例
+      this.depsId = new Set(); // 用于当前 watcher 保存 dep 实例的唯一id
       this.get();
     }
     get() {
-      Dep.target = this.vm;
+      // 取this.vm和this有区别 
+      Dep.target = this;
       this.getter();
       Dep.target = null;
+    }
+    addDept(dept) {
+      let did = dept.id;
+      if (!this.depsId.has(did)) {
+        this.deps.push(dept);
+        this.depsId.add(dept.id);
+        // dept依赖收集
+        dept.addSub(this);
+      }
+    }
+    update() {
+      this.get();
     }
   }
 

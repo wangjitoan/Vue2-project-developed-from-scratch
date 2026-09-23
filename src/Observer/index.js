@@ -43,7 +43,8 @@ function defineReactive(data, key, value) {
             if (newVal === value) return
             observer(newVal)
             // console.log(`set响应式,newVal为`,JSON.stringify(newVal) ,`value为${value}`)
-            value=newVal
+            value = newVal
+            dep.notify()
          }
     })
 }
