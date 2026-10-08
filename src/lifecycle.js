@@ -13,7 +13,7 @@ export   function mountComponent(vm){
       vm._update(vm._render());
     };
      
-    new Watcher(vm, updateComponent, () => { console.log('mountComponent')},true);
+    new Watcher(vm, updateComponent, () => { console.log('mountComponent，创建watch')},true);
 }
 export function lifecycleMixin(Vue) { 
     // 更新节点函数挂载

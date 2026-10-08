@@ -8,6 +8,7 @@
     return typeof val === "function";
   }
   function isObject(val) {
+    // 数组 对象都是该类型
     return typeof val === "object";
   }
   function isArray(val) {
@@ -49,6 +50,8 @@
 
       // console.log(`重写${method}方法`, inserters)
       if (inserters) ob.objectArray(inserters);
+      // 实现派发更新
+      ob.dept.notify();
     };
   });
 
@@ -76,8 +79,11 @@
   }
   Dep.target = null;
 
+  // 有两类依赖收集器，需要区分
   class Observer {
     constructor(data) {
+      // 为观察者实例添加依赖收集属性，实现对象或数组的收集。$set实现的根基
+      this.dept = new Dep();
       Object.defineProperty(data, '__ob__', {
         value: this,
         enumerable: false
@@ -94,6 +100,8 @@
         defineReactive(data, key, data[key]);
       });
     }
+
+    // 数组的观测方法
     objectArray(value) {
       // console.log("当前观测内容为", JSON.stringify(value));
       // 遍历数组中的每个元素，并对每个元素进行观测
@@ -103,12 +111,20 @@
     }
   }
   function defineReactive(data, key, value) {
-    observer(value);
+    let childObj = observer(value);
     let dep = new Dep();
     Object.defineProperty(data, key, {
       get() {
         if (Dep.target) {
           dep.depend();
+          if (childObj) {
+            // console.log("key",key,"的子集依赖收集")
+            childObj.dept.depend();
+            // 对数组进行遍历依赖收集，walk遍历对象 根据childObj.dept.depend();实现对对象属性的依赖收集
+            if (isArray(value)) {
+              dependArray(value);
+            }
+          }
         }
         return value;
       },
@@ -127,7 +143,17 @@
       // console.log(data,'已经被观测过了')
       return;
     }
-    new Observer(data);
+    return new Observer(data);
+  }
+  function dependArray(value) {
+    for (let i = 0; i < value.length; i++) {
+      let current = value[i];
+      // 数组或对象进行依赖收集
+      current.__ob__ && current.__ob__.dept.depend();
+      if (isArray(current)) {
+        dependArray(current);
+      }
+    }
   }
 
   function initState(vm) {
@@ -464,7 +490,7 @@
       vm._update(vm._render());
     };
     new Watcher(vm, updateComponent, () => {
-      console.log('mountComponent');
+      console.log('mountComponent，创建watch');
     }, true);
   }
   function lifecycleMixin(Vue) {

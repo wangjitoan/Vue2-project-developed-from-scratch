@@ -2,6 +2,7 @@ export function isFunction(val) {
   return typeof val === "function";
 }
 export function isObject(val) {
+  // 数组 对象都是该类型
   return typeof val === "object";
 }
 export function isArray(val) { 

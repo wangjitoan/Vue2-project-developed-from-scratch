@@ -18,6 +18,8 @@ methods.forEach(method => {
         }
         
         // console.log(`重写${method}方法`, inserters)
-        if (inserters)ob.objectArray(inserters)
+        if (inserters) ob.objectArray(inserters)
+        // 实现派发更新
+        ob.dept.notify()
     }
 })
