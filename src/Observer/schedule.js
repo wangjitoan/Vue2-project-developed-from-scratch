@@ -1,4 +1,5 @@
-import { nextTick} from '../utils'
+import { nextTick } from '../utils'
+import { callHook} from '../lifecycle'
 let queue = []
 let has = {}
 let pending=false
@@ -8,14 +9,17 @@ export function queueWatcher(watcher) {
         has[id] = true
         queue.push(watcher)
         if (!pending) { 
+            debugger
             nextTick(flushschedulerQueue);
             pending=true
         }
      }
 }
-function flushschedulerQueue() {
-     queue.forEach((watcher) => watcher.run());
-     queue = [];
-     pending = false;
-     has = {};
- }
+function flushschedulerQueue() {  
+  // callHook('beforeUpdate')
+  queue.forEach((watcher) => watcher.run());
+  queue = [];
+  pending = false;
+  has = {};
+  // callHook('updated')
+}

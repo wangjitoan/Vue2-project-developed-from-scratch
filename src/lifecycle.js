@@ -12,16 +12,25 @@ export   function mountComponent(vm){
     let updateComponent = () => {
       vm._update(vm._render());
     };
-     
-    new Watcher(vm, updateComponent, () => { console.log('mountComponent，创建watch')},true);
+
+    callHook(vm, "beforeCreate");
+    new Watcher(vm, updateComponent, () => {
+        console.log('mountComponent，创建watch')
+        callHook(vm, 'created')
+    }, true);
+    callHook(vm, "mounted");
 }
 export function lifecycleMixin(Vue) { 
     // 更新节点函数挂载
     Vue.prototype._update = function (vnode) {
-        const vm = this
-        // console.log(vnode)
+        const vm = this 
         vm.$el = patch(vm.$el, vnode)
         console.log('依据vdom生成的真实dom',vm.$el)
     }
+
+}
+export function callHook(vm, hooks) {
+    const handlers = vm.$options[hooks]
+    handlers && handlers.forEach((fn) => fn.call(vm));
 
 }

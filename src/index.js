@@ -1,6 +1,7 @@
 import { initMixin } from './init'
 import { renderMixin } from './render'
-import { lifecycleMixin }from './lifecycle'
+import { lifecycleMixin } from './lifecycle'
+import { initGlobalAPI} from './global-api'
 function Vue(options) { 
     // 初始化el和data
     const vm=this
@@ -10,4 +11,5 @@ function Vue(options) {
 initMixin(Vue)
 renderMixin(Vue)
 lifecycleMixin(Vue)
+initGlobalAPI(Vue)
 export default Vue;

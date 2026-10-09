@@ -1,18 +1,23 @@
 import { initState } from './state'
 import { compileToFunction } from './compiler'
 import { mountComponent } from './lifecycle'
-import { nextTick } from "./utils";
+import { nextTick, mergeOptions } from "./utils";
+/**
+ * 初始化Vue的混入方法，为Vue添加核心功能
+ * @param {Object} vue - Vue构造函数
+ */
 export function initMixin(vue) {
    
     // 初始化vue的init,作用在于数据初始化、节点挂载
     vue.prototype._init = function (options) {
         // 初始化数据挂载
         const vm = this
-        vm.$options = options
-        initState(vm)
+        vm.$options = mergeOptions(vm.constructor.options,  options);
+        initState(vm) 
         if (options.el) {  
             vm.$mount(options.el)
         }
+        
     }
     vue.prototype.$mount = function(el)  { 
         console.log('选中的el', el)

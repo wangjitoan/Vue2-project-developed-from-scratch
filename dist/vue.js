@@ -30,6 +30,48 @@
     callBacks = [];
     waiting = false;
   }
+  function mergeOptions(parentVal, childVal) {
+    let options = {};
+    // 先合并老的
+    for (let key in parentVal) {
+      mergeFiled(key);
+    }
+    for (let key in childVal) {
+      if (!parentVal.hasOwnProperty(key)) {
+        mergeFiled(key);
+      }
+    }
+    function mergeFiled(key) {
+      // 合并策略决定mixin会将data\methods\components覆盖
+      // 生命周期不会被覆盖
+      if (strats[key]) {
+        options[key] = strats[key](parentVal[key], childVal[key]);
+      } else {
+        options[key] = parentVal[key] || childVal[key];
+      }
+    }
+    return options;
+  }
+
+  // 生命周期策略
+  let strats = {};
+  let lifeCycle = ['beforeCreate', 'created', 'beforeMount', 'mounted', 'beforeUpdate', 'updated', 'beforeDestroy', 'destroyed'];
+  lifeCycle.forEach(hook => {
+    strats[hook] = function (parentVal, childVal) {
+      if (childVal) {
+        if (parentVal) {
+          // 父有值，必是数组
+          return parentVal.concat(childVal);
+        } else {
+          if (isArray(childVal)) {
+            return childVal;
+          } else {
+            return [childVal];
+          }
+        }
+      } else return parentVal;
+    };
+  });
 
   let oldArrayPrototype = Array.prototype;
   let newArrayMethods = Object.create(oldArrayPrototype);
@@ -428,16 +470,19 @@
       has[id] = true;
       queue.push(watcher);
       if (!pending) {
+        debugger;
         nextTick(flushschedulerQueue);
         pending = true;
       }
     }
   }
   function flushschedulerQueue() {
+    // callHook('beforeUpdate')
     queue.forEach(watcher => watcher.run());
     queue = [];
     pending = false;
     has = {};
+    // callHook('updated')
   }
 
   let id = 0;
@@ -489,26 +534,36 @@
     let updateComponent = () => {
       vm._update(vm._render());
     };
+    callHook(vm, "beforeCreate");
     new Watcher(vm, updateComponent, () => {
       console.log('mountComponent，创建watch');
+      callHook(vm, 'created');
     }, true);
+    callHook(vm, "mounted");
   }
   function lifecycleMixin(Vue) {
     // 更新节点函数挂载
     Vue.prototype._update = function (vnode) {
       const vm = this;
-      // console.log(vnode)
       vm.$el = patch(vm.$el, vnode);
       console.log('依据vdom生成的真实dom', vm.$el);
     };
   }
+  function callHook(vm, hooks) {
+    const handlers = vm.$options[hooks];
+    handlers && handlers.forEach(fn => fn.call(vm));
+  }
 
+  /**
+   * 初始化Vue的混入方法，为Vue添加核心功能
+   * @param {Object} vue - Vue构造函数
+   */
   function initMixin(vue) {
     // 初始化vue的init,作用在于数据初始化、节点挂载
     vue.prototype._init = function (options) {
       // 初始化数据挂载
       const vm = this;
-      vm.$options = options;
+      vm.$options = mergeOptions(vm.constructor.options, options);
       initState(vm);
       if (options.el) {
         vm.$mount(options.el);
@@ -580,6 +635,17 @@
     };
   }
 
+  function initGlobalAPI(Vue) {
+    Vue.options = {};
+    Vue.mixin = function (options) {
+      Vue.options = mergeOptions(this.options, options);
+      return this;
+    };
+    Vue.component = function (options) {};
+    Vue.filter = function (options) {};
+    Vue.directive = function (options) {};
+  }
+
   function Vue(options) {
     // 初始化el和data
     const vm = this;
@@ -589,6 +655,7 @@
   initMixin(Vue);
   renderMixin(Vue);
   lifecycleMixin(Vue);
+  initGlobalAPI(Vue);
 
   return Vue;
 

@@ -13,8 +13,15 @@
   </div>
   <!-- 引入 vue.js，将会绑定到 window-->
   <script src="./vue.js"></script>
-  <script>
-    // debugger;
+  <script> 
+    Vue.mixin({
+    //   methods:{
+    //     fna(){
+    //     console.log('mixin')
+    //   }
+    // },
+    mounted(){console.log('Vue')}
+  }) 
     let vm = new Vue({
       el: '#app',
       data() {
@@ -29,11 +36,12 @@
       methods:{
         addName(){
         name+=1
-      }}
+      }},
+      mounted(){console.log('vm')}
       // render:function(){consol.log(333)}
     }); 
     // vm.arr[1].a='bb'
-    // vm.arr[0].push(2)
+    vm.arr[0].push(2)
     // vm.arr[1]=[1,2] 
     // vm.arr[1]={name:'kk'}
     // vm.obj.key='new val'
