@@ -418,18 +418,64 @@
     return render;
   }
 
-  function patch(el, vnode) {
-    // 创建
-    const dom = createElement$1(vnode);
-    console.log('createElement', vnode);
-    console.log(el.parentNode, "el");
-    const parentNode = el.parentNode;
-    const last = el.nextElementSibling;
-    parentNode.insertBefore(dom, last);
-    parentNode.removeChild(el);
-    return dom;
+  function createElement(vm, tag, data = {}, ...children) {
+    return vnode(vm, tag, data, ...children, data.key, undefined);
   }
-  function createElement$1(vnode) {
+  function createText(vm, text) {
+    return vnode(vm, undefined, undefined, undefined, undefined, text);
+  }
+  function vnode(vm, tag, data, children, key, text) {
+    return {
+      vm,
+      tag,
+      data,
+      children,
+      key,
+      text
+    };
+  }
+  function isSameVnode(oldVnode, newVnode) {
+    return oldVnode.tag === newVnode.tag && oldVnode.key === newVnode.key;
+  }
+
+  // 兼容创建和更新的情况
+  function patch(oldVnode, vnode) {
+    const isRealNode = oldVnode.nodeType;
+    if (isRealNode) {
+      // 创建
+      const dom = createElm(vnode);
+      console.log("createElm", vnode);
+      console.log(oldVnode.parentNode, "el");
+      const parentNode = oldVnode.parentNode;
+      const last = oldVnode.nextElementSibling;
+      parentNode.insertBefore(dom, last);
+      parentNode.removeChild(oldVnode);
+      return dom;
+    } else {
+      // 更新
+      //  是同一个节点
+      if (isSameVnode(oldVnode, vnode)) {
+        // dom节点复用
+        const el = vnode.el = oldVnode.el;
+        // 文本类型
+        if (!oldVnode.tag) {
+          if (oldVnode.text !== vnode.text) {
+            return el.textContent = vnode.text;
+          } else {
+            return;
+          }
+        }
+        updateProperties(vnode, oldVnode?.data?.attrs);
+        console.log(vnode, "22222222");
+      } else {
+        // 不是同一个节点
+        // console.log("不是同一个节点", oldVnode)
+        // 返回被替换的旧节点
+        return oldVnode.el.parentNode.replaceChild(createElm(vnode), oldVnode.el);
+      }
+    }
+  }
+  function createElm(vnode) {
     const {
       vm,
       tag,
@@ -442,22 +488,40 @@
       // 将真实节点和虚拟节点做映射
       vnode.el = document.createElement(tag);
       // 挂载属性
-      updateProperties(vnode.el, data?.attrs);
+      updateProperties(vnode, data?.attrs);
       if (children.length) {
-        children.forEach(item => vnode.el.appendChild(createElement$1(item)));
+        children.forEach(item => vnode.el.appendChild(createElm(item)));
       }
     } else {
       vnode.el = document.createTextNode(text);
     }
     return vnode.el;
   }
-  function updateProperties(el, props = {}) {
-    for (let key in props) {
-      let value = props[key];
-      if (key === 'style') {
-        value = JSON.stringify(props[key]);
+  function updateProperties(vnode, oldProps = {}) {
+    // 初次渲染和更新渲染情况
+    const el = vnode.el;
+    const newProps = vnode?.data?.attrs || {};
+    const newStyle = newProps.style || {};
+    const oldStyle = oldProps.style || {};
+    for (let key in oldStyle) {
+      if (!newStyle[key]) {
+        el.style[key] = '';
       }
-      el.setAttribute(key, value);
+    }
+    for (let key in newProps) {
+      if (key === 'style') {
+        for (let styleKey in newStyle) {
+          el.style[styleKey] = newStyle[styleKey];
+        }
+      } else {
+        let value = newProps[key];
+        el.setAttribute(key, value);
+      }
+    }
+    for (let key in oldProps) {
+      if (!newProps[key]) {
+        el.removeAttribute(key);
+      }
     }
   }
 
@@ -470,7 +534,6 @@
       has[id] = true;
       queue.push(watcher);
       if (!pending) {
-        debugger;
         nextTick(flushschedulerQueue);
         pending = true;
       }
@@ -592,23 +655,6 @@
     vue.prototype.$nextTick = nextTick;
   }
 
-  function createElement(vm, tag, data = {}, ...children) {
-    return vnode(vm, tag, data, ...children, data.key, undefined);
-  }
-  function createText(vm, text) {
-    return vnode(vm, undefined, undefined, undefined, undefined, text);
-  }
-  function vnode(vm, tag, data, children, key, text) {
-    return {
-      vm,
-      tag,
-      data,
-      children,
-      key,
-      text
-    };
-  }
-
   // 渲染
   function renderMixin(vue) {
     vue.prototype._s = function (val) {
@@ -656,6 +702,10 @@
   renderMixin(Vue);
   lifecycleMixin(Vue);
   initGlobalAPI(Vue);
+  // 调试用
+  Vue.compileToFunction = compileToFunction;
+  Vue.createElm = createElm;
+  Vue.patch = patch;
 
   return Vue;
 

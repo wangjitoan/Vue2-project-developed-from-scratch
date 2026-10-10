@@ -16,3 +16,6 @@ export function vnode(vm, tag, data, children, key, text) {
         text
     }
 }
+export function isSameVnode(oldVnode, newVnode) { 
+    return oldVnode.tag===newVnode.tag && oldVnode.key===newVnode.key
+}

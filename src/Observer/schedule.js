@@ -8,8 +8,7 @@ export function queueWatcher(watcher) {
     if (!has[id]) {
         has[id] = true
         queue.push(watcher)
-        if (!pending) { 
-            debugger
+        if (!pending) {  
             nextTick(flushschedulerQueue);
             pending=true
         }

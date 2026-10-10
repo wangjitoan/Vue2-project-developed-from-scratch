@@ -47,8 +47,7 @@ function defineReactive(data, key, value) {
                     // 对数组进行遍历依赖收集，walk遍历对象 根据childObj.dept.depend();实现对对象属性的依赖收集
                     if (isArray(value)) { 
                         dependArray(value)
-                    }
-                    
+                    } 
                 }
             }
             return value

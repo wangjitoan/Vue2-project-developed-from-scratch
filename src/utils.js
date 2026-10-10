@@ -49,7 +49,9 @@ export function mergeOptions(parentVal, childVal) {
 
   // 生命周期策略
 let strats = {};  
-let lifeCycle = ['beforeCreate', 'created', 'beforeMount', 'mounted', 'beforeUpdate', 'updated', 'beforeDestroy', 'destroyed']
+let lifeCycle = ['beforeCreate', 'created', 'beforeMount',
+  'mounted', 'beforeUpdate', 'updated',
+  'beforeDestroy', 'destroyed']
 lifeCycle.forEach(hook => { 
   strats[hook] = function (parentVal, childVal) { 
     if (childVal) { 

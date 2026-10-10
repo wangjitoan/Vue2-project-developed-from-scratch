@@ -14,8 +14,8 @@ export function renderMixin(vue) {
        return createText(this,val);
     };
     // 虚拟元素节点
-    vue.prototype._c = function (tag,attrs,...children) { 
-      return createElement(this,tag,attrs,children)
+    vue.prototype._c = function (tag, attrs, ...children) {  
+      return createElement(this,tag, attrs,children)
     };
 
     vue.prototype._render = function () {  

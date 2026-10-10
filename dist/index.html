@@ -13,15 +13,16 @@
   </div>
   <!-- 引入 vue.js，将会绑定到 window-->
   <script src="./vue.js"></script>
-  <script> 
-    Vue.mixin({
-    //   methods:{
-    //     fna(){
-    //     console.log('mixin')
-    //   }
-    // },
-    mounted(){console.log('Vue')}
-  }) 
+ <script  >  
+//  测试mixin全局挂载
+  //   Vue.mixin({
+  //   //   methods:{
+  //   //     fna(){
+  //   //     console.log('mixin')
+  //   //   }
+  //   // },
+  //   mounted(){console.log('Vue')}
+  // }) 
     let vm = new Vue({
       el: '#app',
       data() {
@@ -49,15 +50,43 @@
     // vm.name=3434
     // debugger
     // vm.arr.splice(0,0,89) 
-    vm.$nextTick(()=>{
-      console.log('用户自定义微任务回调,vm为',vm)
-    })
+    // vm.$nextTick(()=>{
+    //   console.log('用户自定义微任务回调,vm为',vm)  
+    // })
     
     // vm._update(vm._render())
     // vm.arr.push({a:1,b:3},{c:34})
     // vm.arr.push(vm.obj)
     // vm.arr.push(4) // 操作数组
     // console.log(vm._data)
+    // debugger
+
+    // diff调试例子
+    let vm1 = new Vue({
+      data() {
+        return { 
+          message: 'Hello Vue node1'   
+      }     // 数组
+      } 
+    });
+    let render1=Vue.compileToFunction('<span b="1" style="color:red;border:1px solid yellow">aaaaa</span>')
+    let vnode1=render1.call(vm1)
+    document.body.appendChild(Vue.createElm(vnode1))
+    console.log(vm1,'vm1', render1.call(vm1))
+
+  let vm2 = new Vue({
+      data() {
+        return { 
+          message: 'Hello Vue node1'   
+      }     // 数组
+      } 
+    });
+    let render2=Vue.compileToFunction('<span a="2" style="color:blue">aaa</span>')
+    let vnode2=render2.call(vm2)
+  setTimeout(()=>{
+    Vue.patch(vnode1,vnode2)
+    console.log(vnode1,'vnode1',vnode2,'vnode2')
+  },1000)
   </script>
 </body>
 </html>
