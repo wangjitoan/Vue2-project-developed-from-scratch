@@ -419,7 +419,7 @@
   }
 
   function createElement(vm, tag, data = {}, ...children) {
-    return vnode(vm, tag, data, ...children, data.key, undefined);
+    return vnode(vm, tag, data, ...children, data?.attrs?.key, undefined);
   }
   function createText(vm, text) {
     return vnode(vm, undefined, undefined, undefined, undefined, text);
@@ -435,7 +435,8 @@
     };
   }
   function isSameVnode(oldVnode, newVnode) {
-    return oldVnode.tag === newVnode.tag && oldVnode.key === newVnode.key;
+    // debugger
+    return oldVnode?.tag === newVnode?.tag && oldVnode.key === newVnode.key;
   }
 
   // 兼容创建和更新的情况
@@ -466,11 +467,24 @@
           }
         }
         updateProperties(vnode, oldVnode?.data?.attrs);
-        console.log(vnode, "22222222");
+        // 处理子节点的diff策略
+        let oldChildren = oldVnode.children || [];
+        let newChildren = vnode.children || [];
+        if (oldChildren.length === 0 && newChildren.length > 0) {
+          newChildren.forEach(child => {
+            let childElm = createElm(child);
+            el.appendChild(childElm);
+          });
+        } else if (oldChildren.length > 0 && newChildren.length === 0) {
+          el.innerHTML = '';
+        } else {
+          // 新老节点都有儿子
+          updateChildren(el, oldChildren, newChildren);
+        }
       } else {
         // 不是同一个节点
         // console.log("不是同一个节点", oldVnode)
-        // 返回被替换的旧节点
+        // TODO 返回被替换的旧节点，后续操作
         return oldVnode.el.parentNode.replaceChild(createElm(vnode), oldVnode.el);
       }
     }
@@ -521,6 +535,79 @@
     for (let key in oldProps) {
       if (!newProps[key]) {
         el.removeAttribute(key);
+      }
+    }
+  }
+  function updateChildren(el, oldChildren, newChildren) {
+    function makeKeyByIndex(oldChildren) {
+      let map = {};
+      oldChildren.forEach((children, index) => {
+        map[children.key] = index;
+      });
+      return map;
+    }
+    let mapping = makeKeyByIndex(oldChildren);
+    let oldStartIndex = 0;
+    let oldEndIndex = oldChildren.length - 1;
+    let oldStartVnode = oldChildren[0];
+    let oldEndVnode = oldChildren[oldEndIndex];
+    let newStartIndex = 0;
+    let newEndIndex = newChildren.length - 1;
+    let newStartVnode = newChildren[0];
+    let newEndVnode = newChildren[newEndIndex];
+    while (oldStartIndex < oldEndIndex && newStartIndex < newEndIndex) {
+      // 循环开始，优先处理 oldStartVnode 和 oldEndVnode 为空的情况
+      // 原因：之前节点被移走时，原始位置被置空为undefined，处理时需要跳过
+      if (!oldStartVnode) {
+        oldStartVnode = oldChildren[++oldStartIndex];
+      } else if (!oldEndVnode) {
+        oldEndVnode = oldChildren[--oldEndIndex];
+      } else if (isSameVnode(oldStartVnode, newStartVnode)) {
+        patch(oldStartVnode, newStartVnode);
+        oldStartVnode = oldChildren[++oldStartIndex];
+        newStartVnode = newChildren[++newStartIndex];
+      } else if (isSameVnode(oldEndVnode, newEndVnode)) {
+        patch(oldEndVnode, newEndVnode);
+        oldEndVnode = oldChildren[--oldEndIndex];
+        newEndVnode = newChildren[--newEndIndex];
+      } else if (isSameVnode(newStartVnode, oldEndVnode)) {
+        // 新头和旧尾相同 
+        patch(oldEndVnode, newStartVnode);
+        el.insertBefore(oldEndVnode.el, oldStartVnode.el); // 将尾部插入到头部
+        newStartVnode = newChildren[++newStartIndex];
+        oldEndVnode = oldChildren[--oldEndIndex];
+      } else if (isSameVnode(oldStartVnode, newEndVnode)) {
+        // 新尾和旧头相同
+        patch(oldStartVnode, newEndVnode);
+        el.insertBefore(oldStartVnode.el, oldEndVnode.el.nextSibling);
+        newEndVnode = newChildren[--newEndIndex];
+        oldStartVnode = oldChildren[++oldStartIndex];
+      } else {
+        // 以上四种情况不符合，进行乱序排序
+        // debugger
+        let moveIndex = mapping[newStartVnode.key];
+        if (!moveIndex) {
+          // 没有可复用的老节点 
+          el.insertBefore(createElm(newStartVnode), oldStartVnode.el);
+        } else {
+          // debugger
+          let moveVnode = oldChildren[moveIndex];
+          el.insertBefore(moveVnode.el, oldStartVnode.el);
+          patch(moveVnode, newStartVnode);
+          oldChildren[moveIndex] = undefined;
+        }
+        newStartVnode = newChildren[++newStartIndex];
+      }
+    }
+    if (newStartIndex <= newEndIndex) {
+      let anchor = newChildren[newEndIndex + 1] ? newChildren[newEndIndex + 1].el : null;
+      for (let i = newStartIndex; i <= newEndIndex; i++) {
+        el.insertBefore(createElm(newChildren[i]), anchor);
+      }
+    }
+    if (oldStartIndex <= oldEndIndex) {
+      for (let i = oldStartIndex; i <= oldEndIndex; i++) {
+        oldChildren[i] && el.removeChild(oldChildren[i].el);
       }
     }
   }

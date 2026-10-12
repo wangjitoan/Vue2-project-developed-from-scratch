@@ -33,7 +33,7 @@
           name:'lihua',     
       }     // 数组
       },
-      template:'<div id="app" b=23 style="color:red;width:90px;">aaa{{name}}bbb<div>sss{{arr}}</div><span>{{obj}}</span></div>',
+      template:'<div id="app" b=23 style="color:red;width:90px;" key="a">aaa{{name}}bbb<div key="b">sss{{arr}}</div><span>{{obj}}</span></div>',
       methods:{
         addName(){
         name+=1
@@ -69,7 +69,12 @@
       }     // 数组
       } 
     });
-    let render1=Vue.compileToFunction('<span b="1" style="color:red;border:1px solid yellow">aaaaa</span>')
+    let render1=Vue.compileToFunction(`<div>
+    <li key="A">A</li>
+    <li key="B">B</li>
+    <li key="C">C</li>
+    <li key="D">D</li>
+</div>`)
     let vnode1=render1.call(vm1)
     document.body.appendChild(Vue.createElm(vnode1))
     console.log(vm1,'vm1', render1.call(vm1))
@@ -81,9 +86,17 @@
       }     // 数组
       } 
     });
-    let render2=Vue.compileToFunction('<span a="2" style="color:blue">aaa</span>')
+    let render2=Vue.compileToFunction(`<div>
+    <li key="F" style="color:pink">F</li>
+    <li key="B" style="color:yellow">B</li>
+    <li key="A" style="color:blue">A</li>
+    <li key="E" style="color:red">E</li>
+    <li key="P" style="color:red">P</li>
+</div>` )
+ 
     let vnode2=render2.call(vm2)
   setTimeout(()=>{
+    
     Vue.patch(vnode1,vnode2)
     console.log(vnode1,'vnode1',vnode2,'vnode2')
   },1000)

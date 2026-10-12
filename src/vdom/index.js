@@ -1,5 +1,5 @@
-export function createElement(vm, tag, data = {},...children) { 
-    return vnode(vm,tag,data,...children,data.key,undefined)
+export function createElement(vm, tag, data = {}, ...children) {  
+    return vnode(vm,tag,data,...children,data?.attrs?.key,undefined)
 
 }
 export function createText(vm,text) { 
@@ -7,6 +7,7 @@ export function createText(vm,text) {
 }
 
 export function vnode(vm, tag, data, children, key, text) { 
+    
     return {
         vm,
         tag,
@@ -16,6 +17,7 @@ export function vnode(vm, tag, data, children, key, text) {
         text
     }
 }
-export function isSameVnode(oldVnode, newVnode) { 
-    return oldVnode.tag===newVnode.tag && oldVnode.key===newVnode.key
+export function isSameVnode(oldVnode, newVnode) {  
+    // debugger
+    return oldVnode?.tag===newVnode?.tag && oldVnode.key===newVnode.key
 }
