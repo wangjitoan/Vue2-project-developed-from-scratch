@@ -1,9 +1,10 @@
 import { isSameVnode} from './index'
 // 兼容创建和更新的情况
-export function patch(oldVnode, vnode) {
+export function patch(oldVnode, vnode) {  
     const isRealNode = oldVnode.nodeType
     if (isRealNode) {
         // 创建
+        console.log("从0创建dom")
         const dom = createElm(vnode);
         console.log("createElm", vnode );
         console.log(oldVnode.parentNode, "el");
@@ -46,6 +47,19 @@ export function patch(oldVnode, vnode) {
             // 不是同一个节点
             // console.log("不是同一个节点", oldVnode)
             // TODO 返回被替换的旧节点，后续操作
+            // 这种方式有个缺点,当老节点为
+            // <div>
+            //     <li key="A">A</li>
+            //     <li key="B">B</li>
+            //     <li key="C">C</li>
+            //     <li key="D">D</li>
+            // </div>，新节点为
+            // <span>
+            //   <li key="A">A</li>
+            //   <li key="B">B</li>
+            //   <li key="C">C</li>
+            //   <li key="D">D</li>
+            // </span>;  最外层不同，里层相同。仍然生成里层的dom，dom操作多
             return oldVnode.el.parentNode.replaceChild(createElm(vnode), oldVnode.el);
         }
 

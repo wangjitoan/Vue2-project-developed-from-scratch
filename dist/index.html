@@ -43,6 +43,10 @@
     }); 
     // vm.arr[1].a='bb'
     vm.arr[0].push(2)
+     
+setTimeout(() => {
+      vm .name = "BraveWang";
+    }, 1000);
     // vm.arr[1]=[1,2] 
     // vm.arr[1]={name:'kk'}
     // vm.obj.key='new val'
@@ -86,13 +90,13 @@
       }     // 数组
       } 
     });
-    let render2=Vue.compileToFunction(`<div>
+    let render2=Vue.compileToFunction(`<span>
     <li key="F" style="color:pink">F</li>
     <li key="B" style="color:yellow">B</li>
     <li key="A" style="color:blue">A</li>
     <li key="E" style="color:red">E</li>
     <li key="P" style="color:red">P</li>
-</div>` )
+</span>` )
  
     let vnode2=render2.call(vm2)
   setTimeout(()=>{

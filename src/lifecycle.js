@@ -24,7 +24,11 @@ export function lifecycleMixin(Vue) {
     // 更新节点函数挂载
     Vue.prototype._update = function (vnode) {
         const vm = this 
-        vm.$el = patch(vm.$el, vnode)
+        let preVnode=vm.preVnode
+        vm.preVnode = vnode
+        if (preVnode) {
+            vm.$el = patch(preVnode, vnode);
+        } else { vm.$el = patch(vm.$el, vnode) }
         console.log('依据vdom生成的真实dom',vm.$el)
     }
 

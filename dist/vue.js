@@ -444,6 +444,7 @@
     const isRealNode = oldVnode.nodeType;
     if (isRealNode) {
       // 创建
+      console.log("从0创建dom");
       const dom = createElm(vnode);
       console.log("createElm", vnode);
       console.log(oldVnode.parentNode, "el");
@@ -485,6 +486,19 @@
         // 不是同一个节点
         // console.log("不是同一个节点", oldVnode)
         // TODO 返回被替换的旧节点，后续操作
+        // 这种方式有个缺点,当老节点为
+        // <div>
+        //     <li key="A">A</li>
+        //     <li key="B">B</li>
+        //     <li key="C">C</li>
+        //     <li key="D">D</li>
+        // </div>，新节点为
+        // <span>
+        //   <li key="A">A</li>
+        //   <li key="B">B</li>
+        //   <li key="C">C</li>
+        //   <li key="D">D</li>
+        // </span>;  最外层不同，里层相同。仍然生成里层的dom，dom操作多
         return oldVnode.el.parentNode.replaceChild(createElm(vnode), oldVnode.el);
       }
     }
@@ -695,7 +709,13 @@
     // 更新节点函数挂载
     Vue.prototype._update = function (vnode) {
       const vm = this;
-      vm.$el = patch(vm.$el, vnode);
+      let preVnode = vm.preVnode;
+      vm.preVnode = vnode;
+      if (preVnode) {
+        vm.$el = patch(preVnode, vnode);
+      } else {
+        vm.$el = patch(vm.$el, vnode);
+      }
       console.log('依据vdom生成的真实dom', vm.$el);
     };
   }
