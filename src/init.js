@@ -12,10 +12,10 @@ export function initMixin(vue) {
     vue.prototype._init = function (options) {
         // 初始化数据挂载
         const vm = this
-        vm.$options = mergeOptions(vm.constructor.options,  options);
+        vm.$options = mergeOptions(vm.constructor.options, options || {});
         initState(vm) 
-        if (options.el) {  
-            vm.$mount(options.el)
+        if (vm.$options?.el) {
+          vm.$mount(vm.$options.el);
         }
         
     }

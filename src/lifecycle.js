@@ -24,6 +24,7 @@ export function lifecycleMixin(Vue) {
     // 更新节点函数挂载
     Vue.prototype._update = function (vnode) {
         const vm = this 
+        // debugger
         let preVnode=vm.preVnode
         vm.preVnode = vnode
         if (preVnode) {
